@@ -61,9 +61,9 @@ public class EmployeeController
 	}
 
 	@DeleteMapping(value = "/delete/{id}")
-	public ResponseEntity<Void> deleteEmployee(@PathVariable Integer id)
+	public ResponseEntity<String> deleteEmployee(@PathVariable Integer id)
 	{
 		employeeService.deleteEmployeeById(id);
-		return ResponseEntity.noContent().build();
+		return ResponseEntity.notFound().build();
 	}
 }
