@@ -3,6 +3,7 @@ package org.employee.controller;
 import lombok.RequiredArgsConstructor;
 import org.employee.dto.EmployeeDto;
 import org.employee.service.EmployeeService;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -26,38 +27,28 @@ public class EmployeeController
 	public ResponseEntity<EmployeeDto> saveEmployee(
 					@RequestBody EmployeeDto employee)
 	{
-		return ResponseEntity.ok().body(employeeService.addEmployee(employee));
+		return ResponseEntity.status(HttpStatus.CREATED)
+						.body(employeeService.addEmployee(employee));
 	}
 
 	@GetMapping(value = "/getall")
 	public ResponseEntity<List<EmployeeDto>> listEmployees()
 	{
-		List<EmployeeDto> dtos = employeeService.findAllEmployees();
-		return ResponseEntity.ok().body(dtos);
+		return ResponseEntity.ok().body(employeeService.findAllEmployees());
 	}
 
 	@GetMapping(value = "/getById/{id}")
 	public ResponseEntity<EmployeeDto> getEmployeeById(@PathVariable Integer id)
 	{
-		EmployeeDto dto = employeeService.findById(id);
-		if(dto != null)
-		{
-			return ResponseEntity.ok().body(dto);
-		}
-		return ResponseEntity.notFound().build();
+		return ResponseEntity.ok().body(employeeService.findById(id));
 	}
 
 	@PutMapping(value = "/update/{id}")
 	public ResponseEntity<EmployeeDto> updateEmployeeById(
 					@PathVariable Integer id , @RequestBody EmployeeDto employee)
 	{
-		EmployeeDto dto = employeeService.findById(id);
-		if(dto != null)
-		{
-			return ResponseEntity.ok()
-							.body(employeeService.updateEmployee(id , employee));
-		}
-		return ResponseEntity.notFound().build();
+		return ResponseEntity.ok()
+						.body(employeeService.updateEmployee(id , employee));
 	}
 
 	@DeleteMapping(value = "/delete/{id}")
