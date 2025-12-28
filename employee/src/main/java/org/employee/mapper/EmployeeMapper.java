@@ -9,7 +9,7 @@ public class EmployeeMapper
 	{
 	}
 
-	public static EmployeeDto EntityToDto(Employee emp)
+	public static EmployeeDto entityToDto(Employee emp)
 	{
 		EmployeeDto empDto = new EmployeeDto();
 		empDto.setId(emp.getId());
@@ -23,7 +23,7 @@ public class EmployeeMapper
 		return empDto;
 	}
 
-	public static Employee DtoToEntity(EmployeeDto empDto)
+	public static Employee dtoToEntity(EmployeeDto empDto)
 	{
 		Employee emp = new Employee();
 		emp.setId(empDto.getId());
