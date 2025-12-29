@@ -1,7 +1,10 @@
 package org.employee.controller;
 
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import org.employee.dto.EmployeeDto;
+import org.employee.entity.Employee;
 import org.employee.service.EmployeeService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,7 +17,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.math.BigDecimal;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
@@ -23,9 +28,12 @@ public class EmployeeController
 {
 	private final EmployeeService employeeService;
 
+	{
+	}
+
 	@PostMapping(value = "/add")
 	public ResponseEntity<EmployeeDto> saveEmployee(
-					@RequestBody EmployeeDto employee)
+					@Valid @RequestBody EmployeeDto employee)
 	{
 		return ResponseEntity.status(HttpStatus.CREATED)
 						.body(employeeService.addEmployee(employee));
@@ -38,23 +46,44 @@ public class EmployeeController
 	}
 
 	@GetMapping(value = "/getById/{id}")
-	public ResponseEntity<EmployeeDto> getEmployeeById(@PathVariable Integer id)
+	public ResponseEntity<EmployeeDto> getEmployeeById(
+					@PathVariable @Positive Integer id)
 	{
 		return ResponseEntity.ok().body(employeeService.findById(id));
 	}
 
 	@PutMapping(value = "/update/{id}")
 	public ResponseEntity<EmployeeDto> updateEmployeeById(
-					@PathVariable Integer id , @RequestBody EmployeeDto employee)
+					@PathVariable Integer id , @Valid @RequestBody EmployeeDto employee)
 	{
 		return ResponseEntity.ok()
 						.body(employeeService.updateEmployee(id , employee));
 	}
 
 	@DeleteMapping(value = "/delete/{id}")
-	public ResponseEntity<String> deleteEmployee(@PathVariable Integer id)
+	public ResponseEntity<String> deleteEmployee(
+					@PathVariable @Positive Integer id)
 	{
 		employeeService.deleteEmployeeById(id);
 		return ResponseEntity.notFound().build();
+	}
+
+	@GetMapping(value = "/bycity/{city}")
+	public ResponseEntity<List<EmployeeDto>> findByCity(@PathVariable String city)
+	{
+		return ResponseEntity.ok().body(employeeService.findByCity(city));
+	}
+
+	@GetMapping(value = "/earningabove/{salary}")
+	public ResponseEntity<List<String>> getHighEarners(
+					@PathVariable BigDecimal salary)
+	{
+		return ResponseEntity.ok(employeeService.getEarnersAboveAmount(salary));
+	}
+
+	@GetMapping(value = "/groupbycity")
+	public ResponseEntity<Map<String, List<EmployeeDto>>> getGroupByCity()
+	{
+		return ResponseEntity.ok(employeeService.groupEmployeeByCity());
 	}
 }
