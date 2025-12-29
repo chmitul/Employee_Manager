@@ -11,7 +11,11 @@ import org.employee.service.EmployeeService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -26,9 +30,7 @@ public class EmployeeServiceImpl implements EmployeeService
 	{
 		log.info("Inside findById to find employee with id {}" , id);
 		Employee emp = employeeRepository.findById(id)
-						.orElseThrow(() -> new EmployeeNotFoundException(
-										"Employee with " + "id" + " " + id +
-														" not found"));
+						.orElseThrow(() -> new EmployeeNotFoundException("Employee with " + "id" + " " + id + " not found"));
 		return EmployeeMapper.entityToDto(emp);
 	}
 
@@ -55,8 +57,7 @@ public class EmployeeServiceImpl implements EmployeeService
 						id , employee);
 		Employee emp = employeeRepository.findById(id).orElseThrow(() ->
 		{
-			log.info("Employee with the given id {} is not found to update. "
-							, id);
+			log.info("Employee with the given id {} is not found to update. " , id);
 			return new EmployeeNotFoundException("Update failed as id is not " +
 							"found " + ":" + " " + id);
 		});
@@ -77,8 +78,8 @@ public class EmployeeServiceImpl implements EmployeeService
 		if(!employeeRepository.existsById(id))
 		{
 			log.info("Employee not found with id {} to delete" , id);
-			throw new EmployeeNotFoundException("Employee not found with id to" +
-							" " + "delete :  " + id);
+			throw new EmployeeNotFoundException("Employee not found with id to" + " "
+							+ "delete :  " + id);
 		}
 		employeeRepository.deleteById(id);
 	}
@@ -97,5 +98,38 @@ public class EmployeeServiceImpl implements EmployeeService
 		//		return dtos;
 		return employeeRepository.findAll().stream()
 						.map(EmployeeMapper::entityToDto).toList();
+	}
+
+	@Override
+	public List<EmployeeDto> findByCity(String city)
+	{
+		//		List<Employee> employeeListWithCity = employeeRepository.findAll()
+		//		.stream()
+		//						.filter(emp -> emp.getCity().equalsIgnoreCase(city))
+		//						.toList();
+		//		return employeeListWithCity.stream().map(EmployeeMapper::entityToDto)
+		//						.toList();
+		return employeeRepository.findAll().stream()
+						.filter(emp -> emp.getCity().equalsIgnoreCase(city))
+						.map(EmployeeMapper::entityToDto).toList();
+	}
+
+	@Override
+	public List<String> getEarnersAboveAmount(BigDecimal salary)
+	{
+		List<String> list = new ArrayList<String>();
+		list = employeeRepository.findAll().stream()
+						.filter(emp -> emp.getSalary().compareTo(salary) > 0)
+						.map(Employee::getFirstName).toList();
+		return list;
+	}
+
+	@Override
+	public Map<String, List<EmployeeDto>> groupEmployeeByCity()
+	{
+		return employeeRepository.findAll().stream()
+						.filter(employee -> employee.getCity() != null)
+						.map(EmployeeMapper::entityToDto)
+						.collect(Collectors.groupingBy(EmployeeDto::getCity));
 	}
 }
