@@ -1,7 +1,8 @@
 package org.employee.service;
 
 import org.employee.dto.EmployeeDto;
-import org.employee.entity.Employee;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -24,4 +25,10 @@ public interface EmployeeService
 	List<String> getEarnersAboveAmount(BigDecimal salary);
 
 	Map<String, List<EmployeeDto>> groupEmployeeByCity();
+
+	EmployeeDto getEmployeeByPhoneNumber(Long phoneNumber);
+
+	EmployeeDto getEmployeeByLastName(String lastName);
+
+	Page<EmployeeDto> getAllByPagination(Pageable pageable);
 }

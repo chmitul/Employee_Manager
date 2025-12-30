@@ -8,6 +8,10 @@ import org.employee.entity.Employee;
 import org.employee.mapper.EmployeeMapper;
 import org.employee.repository.EmployeeRepository;
 import org.employee.service.EmployeeService;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,12 +30,15 @@ public class EmployeeServiceImpl implements EmployeeService
 
 	@Transactional(readOnly = true)
 	@Override
+	@Cacheable(value = "employeesById",
+						 key = "#id")
 	public EmployeeDto findById(Integer id)
 	{
 		log.info("Inside findById to find employee with id {}" , id);
 		Employee emp = employeeRepository.findById(id)
 						.orElseThrow(() -> new EmployeeNotFoundException("Employee with " + "id" + " " + id + " not found"));
 		return EmployeeMapper.entityToDto(emp);
+		//TODO - try to enhance caching further by installing REDIS.
 	}
 
 	@Override
@@ -72,6 +79,8 @@ public class EmployeeServiceImpl implements EmployeeService
 	}
 
 	@Override
+	@CacheEvict(value = "employeeById",
+							key = "#id")
 	public void deleteEmployeeById(Integer id)
 	{
 		log.info("Inside deleteEmployeeById to delete employee with id {}" , id);
@@ -131,5 +140,24 @@ public class EmployeeServiceImpl implements EmployeeService
 						.filter(employee -> employee.getCity() != null)
 						.map(EmployeeMapper::entityToDto)
 						.collect(Collectors.groupingBy(EmployeeDto::getCity));
+	}
+
+	public EmployeeDto getEmployeeByPhoneNumber(Long phoneNumber)
+	{
+		Employee employeeByPhoneNumber =
+						employeeRepository.getEmployeeByPhoneNumber(phoneNumber);
+		return EmployeeMapper.entityToDto(employeeByPhoneNumber);
+	}
+
+	public EmployeeDto getEmployeeByLastName(String lastName)
+	{
+		return EmployeeMapper.entityToDto(employeeRepository.getEmployeeByLastName(lastName));
+	}
+
+	@Override
+	public Page<EmployeeDto> getAllByPagination(Pageable pageable)
+	{
+		return employeeRepository.findAll(pageable)
+						.map(EmployeeMapper::entityToDto);
 	}
 }
