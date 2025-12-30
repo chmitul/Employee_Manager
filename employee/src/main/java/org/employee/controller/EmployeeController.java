@@ -4,8 +4,10 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import org.employee.dto.EmployeeDto;
-import org.employee.entity.Employee;
 import org.employee.service.EmployeeService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -15,6 +17,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.math.BigDecimal;
@@ -27,9 +30,6 @@ import java.util.Map;
 public class EmployeeController
 {
 	private final EmployeeService employeeService;
-
-	{
-	}
 
 	@PostMapping(value = "/add")
 	public ResponseEntity<EmployeeDto> saveEmployee(
@@ -85,5 +85,29 @@ public class EmployeeController
 	public ResponseEntity<Map<String, List<EmployeeDto>>> getGroupByCity()
 	{
 		return ResponseEntity.ok(employeeService.groupEmployeeByCity());
+	}
+
+	@GetMapping(value = "/getbyphonenumber/{phoneNumber}")
+	public ResponseEntity<EmployeeDto> getEmployeeByPhoneNumber(
+					@PathVariable Long phoneNumber)
+	{
+		return ResponseEntity.ok(employeeService.getEmployeeByPhoneNumber(phoneNumber));
+	}
+
+	@GetMapping(value = "/getbylastname/{lastName}")
+	public ResponseEntity<EmployeeDto> getEmployeeByLastName(
+					@PathVariable String lastName)
+	{
+		return ResponseEntity.ok(employeeService.getEmployeeByLastName(lastName));
+	}
+
+	@GetMapping(value = "/getallbypagination")
+	public ResponseEntity<Page<EmployeeDto>> getEmployeeByPagination(
+					@RequestParam(defaultValue = "0") int page ,
+					@RequestParam(defaultValue = "5") int size)
+	{
+		Pageable pageable = PageRequest.of(page , size);
+		return ResponseEntity.ok(employeeService.getAllByPagination(pageable));
+		//TODO - write a exmaple for pagination sorting
 	}
 }
