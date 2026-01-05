@@ -4,7 +4,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.employee.Exception.EmployeeNotFoundException;
 import org.employee.dto.EmployeeDto;
+import org.employee.dto.ManagerDto;
 import org.employee.entity.Employee;
+import org.employee.feign.ManagerFeignClient;
 import org.employee.mapper.EmployeeMapper;
 import org.employee.repository.EmployeeRepository;
 import org.employee.service.EmployeeService;
@@ -28,6 +30,8 @@ public class EmployeeServiceImpl implements EmployeeService
 {
 	private final EmployeeRepository employeeRepository;
 
+	private final ManagerFeignClient managerFeignClient;
+
 	@Transactional(readOnly = true)
 	@Override
 	@Cacheable(value = "employeesById",
@@ -36,7 +40,8 @@ public class EmployeeServiceImpl implements EmployeeService
 	{
 		log.info("Inside findById to find employee with id {}" , id);
 		Employee emp = employeeRepository.findById(id)
-						.orElseThrow(() -> new EmployeeNotFoundException("Employee with " + "id" + " " + id + " not found"));
+						.orElseThrow(() -> new EmployeeNotFoundException("Employee with "
+										+ "id" + " " + id + " not found"));
 		return EmployeeMapper.entityToDto(emp);
 		//TODO - try to enhance caching further by installing REDIS.
 	}
@@ -60,13 +65,13 @@ public class EmployeeServiceImpl implements EmployeeService
 	@Transactional
 	public EmployeeDto updateEmployee(Integer id , EmployeeDto employee)
 	{
-		log.info("Inside updateEmployee to update employee {} with details {}" ,
-						id , employee);
+		log.info("Inside updateEmployee to update employee {} with details {}" , id ,
+						employee);
 		Employee emp = employeeRepository.findById(id).orElseThrow(() ->
 		{
 			log.info("Employee with the given id {} is not found to update. " , id);
-			return new EmployeeNotFoundException("Update failed as id is not " +
-							"found " + ":" + " " + id);
+			return new EmployeeNotFoundException("Update failed as id is not " + "found "
+							+ ":" + " " + id);
 		});
 		emp.setFirstName(employee.getFirstName());
 		emp.setLastName(employee.getLastName());
@@ -87,8 +92,8 @@ public class EmployeeServiceImpl implements EmployeeService
 		if(!employeeRepository.existsById(id))
 		{
 			log.info("Employee not found with id {} to delete" , id);
-			throw new EmployeeNotFoundException("Employee not found with id to" + " "
-							+ "delete :  " + id);
+			throw new EmployeeNotFoundException("Employee not found with id to" + " " +
+							"delete :  " + id);
 		}
 		employeeRepository.deleteById(id);
 	}
@@ -105,8 +110,8 @@ public class EmployeeServiceImpl implements EmployeeService
 		//			dtos.add(EmployeeMapper.entityToDto(employee));
 		//		}
 		//		return dtos;
-		return employeeRepository.findAll().stream()
-						.map(EmployeeMapper::entityToDto).toList();
+		return employeeRepository.findAll().stream().map(EmployeeMapper::entityToDto)
+						.toList();
 	}
 
 	@Override
@@ -157,7 +162,29 @@ public class EmployeeServiceImpl implements EmployeeService
 	@Override
 	public Page<EmployeeDto> getAllByPagination(Pageable pageable)
 	{
-		return employeeRepository.findAll(pageable)
-						.map(EmployeeMapper::entityToDto);
+		return employeeRepository.findAll(pageable).map(EmployeeMapper::entityToDto);
+	}
+
+	@Override
+	public ManagerDto getManagerDetails(Integer employeeId)
+	{
+		Employee emp = employeeRepository.findById(employeeId).get();
+		if(emp == null)
+		{
+			throw new EmployeeNotFoundException("Employee not found with id " + employeeId);
+		}
+		ManagerDto dto =
+						managerFeignClient.getManagerById(Integer.valueOf(emp.getManagerId()));
+		return dto;
+	}
+
+	@Override
+	public List<EmployeeDto> getEmployeeByManagerId(Integer managerId)
+	{
+		List<Employee> employeesList =
+						employeeRepository.getEmployeesByManagerId(managerId);
+		List<EmployeeDto> employeeDtoList = employeesList.stream()
+						.map(EmployeeMapper::entityToDto).collect(Collectors.toList());
+		return employeeDtoList;
 	}
 }

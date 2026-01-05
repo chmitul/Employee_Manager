@@ -2,8 +2,10 @@ package org.manager.service.ServiceImpl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.manager.dto.EmployeeDto;
 import org.manager.dto.ManagerDto;
 import org.manager.entity.Manager;
+import org.manager.managerfeign.EmployeeFeignClient;
 import org.manager.mapper.ManagerMapper;
 import org.manager.repository.ManagerRepository;
 import org.manager.service.ManagerService;
@@ -18,6 +20,8 @@ import java.util.List;
 public class ManagerServiceImpl implements ManagerService
 {
 	private final ManagerRepository managerRepository;
+
+	private final EmployeeFeignClient employeeFeignClient;
 
 	@Override
 	public ManagerDto getManagerbyId(Integer id)
@@ -50,5 +54,13 @@ public class ManagerServiceImpl implements ManagerService
 	{
 		Manager managerByEmail = managerRepository.findByEmail(email) ;
 		return ManagerMapper.entityToDto(managerByEmail);
+	}
+
+	@Override
+	public List<EmployeeDto> getAllEmployeesForManager(Integer id)
+	{
+		List<EmployeeDto> employeeDtoList =
+						employeeFeignClient.getAllEmployeeForManager(id);
+		return employeeDtoList;
 	}
 }
