@@ -4,6 +4,7 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import org.employee.dto.EmployeeDto;
+import org.employee.dto.ManagerDto;
 import org.employee.service.EmployeeService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -110,4 +111,19 @@ public class EmployeeController
 		return ResponseEntity.ok(employeeService.getAllByPagination(pageable));
 		//TODO - write a exmaple for pagination sorting
 	}
+
+	@GetMapping(value = "/getmanagerdetails/{employeeId}")
+	public ResponseEntity<ManagerDto> getEmployeeManagerDetails(
+					@PathVariable Integer employeeId)
+	{
+		return ResponseEntity.ok(employeeService.getManagerDetails(employeeId));
+	}
+
+	@GetMapping(value = "/Employees/{managerId}")
+	public ResponseEntity<List<EmployeeDto>> getEmployeesByManagerId(
+					@PathVariable Integer managerId)
+	{
+		return ResponseEntity.ok(employeeService.getEmployeeByManagerId(managerId));
+	}
+
 }

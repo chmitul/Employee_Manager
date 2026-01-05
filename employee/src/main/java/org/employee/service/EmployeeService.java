@@ -1,6 +1,7 @@
 package org.employee.service;
 
 import org.employee.dto.EmployeeDto;
+import org.employee.dto.ManagerDto;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -31,4 +32,8 @@ public interface EmployeeService
 	EmployeeDto getEmployeeByLastName(String lastName);
 
 	Page<EmployeeDto> getAllByPagination(Pageable pageable);
+
+	ManagerDto getManagerDetails(Integer employeeId);
+
+	List<EmployeeDto> getEmployeeByManagerId(Integer managerId);
 }

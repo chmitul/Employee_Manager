@@ -1,6 +1,7 @@
 package org.manager.controller;
 
 import lombok.RequiredArgsConstructor;
+import org.manager.dto.EmployeeDto;
 import org.manager.dto.ManagerDto;
 import org.manager.service.ManagerService;
 import org.springframework.http.ResponseEntity;
@@ -33,10 +34,16 @@ public class ManagerController
 	}
 
 	@GetMapping(value = "/getbyemail/{email}")
-	public ResponseEntity<ManagerDto> getManagerByEmail(
-					@PathVariable String email)
+	public ResponseEntity<ManagerDto> getManagerByEmail(@PathVariable String email)
 	{
 		ManagerDto managerByEmailDetails = managerService.getManagerbyEmail(email);
 		return ResponseEntity.ok(managerByEmailDetails);
+	}
+
+	@GetMapping(value = "managers/{id}/employees")
+	public ResponseEntity<List<EmployeeDto>> getAllEmployeeForManager(
+					@PathVariable Integer id)
+	{
+		return ResponseEntity.ok(managerService.getAllEmployeesForManager(id));
 	}
 }

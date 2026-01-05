@@ -6,6 +6,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 @Repository
 public interface EmployeeRepository extends JpaRepository<Employee, Integer>
 {
@@ -15,6 +17,8 @@ public interface EmployeeRepository extends JpaRepository<Employee, Integer>
 
 	@Query("Select e from Employee e where e.lastName = :lastName")
 	Employee getEmployeeByLastName(@Param("lastName") String lastName);
+
+	List<Employee> getEmployeesByManagerId(Integer managerId);
 }
 
 
